@@ -1,6 +1,12 @@
 import { noop } from 'lodash';
 import type { ParcelConfigObject } from 'single-spa';
-import { mountRootParcel, registerApplication, start as startSingleSpa } from 'single-spa';
+import {
+  mountRootParcel,
+  registerApplication,
+  start as startSingleSpa,
+  getMountedApps,
+  unloadApplication,
+} from 'single-spa';
 import type {
   FrameworkConfiguration,
   FrameworkLifeCycles,
@@ -213,4 +219,8 @@ export function start(opts: FrameworkConfiguration = {}) {
   started = true;
 
   frameworkStartedDefer.resolve();
+}
+
+export function unloadMountedApps() {
+  getMountedApps().forEach((appName) => unloadApplication(appName));
 }
