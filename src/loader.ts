@@ -241,6 +241,7 @@ let prevAppUnmountedDeferred: Deferred<void>;
 
 export type ParcelConfigObjectGetter = (remountContainer?: string | HTMLElement) => ParcelConfigObject;
 
+const cachedScriptExports: Record<string, any> = {};
 export async function loadApp<T extends ObjectType>(
   app: LoadableApp<T>,
   configuration: FrameworkConfiguration = {},
@@ -339,7 +340,12 @@ export async function loadApp<T extends ObjectType>(
   await execHooksChain(toArray(beforeLoad), app, global);
 
   // get the lifecycle hooks from module exports
-  const scriptExports: any = await execScripts(global, sandbox && !useLooseSandbox);
+  let scriptExports: any = await execScripts(global, sandbox && !useLooseSandbox);
+  if (validateExportLifecycle(scriptExports)) {
+    Object.assign(cachedScriptExports, { [appName]: scriptExports });
+  } else if (cachedScriptExports[appName]) {
+    scriptExports = cachedScriptExports[appName];
+  }
   const { bootstrap, mount, unmount, update } = getLifecyclesFromExports(
     scriptExports,
     appName,
