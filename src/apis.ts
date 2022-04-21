@@ -222,5 +222,6 @@ export function start(opts: FrameworkConfiguration = {}) {
 }
 
 export function unloadMountedApps() {
-  getMountedApps().forEach((appName) => unloadApplication(appName));
+  const appNames = getMountedApps();
+  return Promise.all(appNames.map((appName) => unloadApplication(appName)));
 }
